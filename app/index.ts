@@ -1,17 +1,18 @@
 import http from 'http';
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 import { ApolloServer } from 'apollo-server-express';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import swaggerUi from 'swagger-ui-express';
-import swaggerJsdoc from 'swagger-jsdoc'
+import type { DocumentNode } from 'graphql';
 
 import Schema from './Schema';
 import Resolvers from './Resolvers';
 import { users } from './dataset';
 import { User } from './types';
 
-async function startApolloServer(schema: any, resolvers: any) {
+async function startApolloServer(schema: DocumentNode, resolvers: typeof Resolvers) {
   const app = express();
 
   const httpServer = http.createServer(app);
@@ -19,7 +20,7 @@ async function startApolloServer(schema: any, resolvers: any) {
     typeDefs: schema,
     resolvers,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  }) as any;
+  });
 
   await server.start();
 
@@ -41,7 +42,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.get('/users', (req: Request, res: Response) => {
+app.get('/users', (_, res: Response) => {
   res.json(users);
 });
 
@@ -127,5 +128,7 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server documentation running on http://localhost:${PORT}/api-docs`);
+
 });
