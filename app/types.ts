@@ -1,3 +1,5 @@
+import { JwtPayload } from 'jsonwebtoken';
+
 export type User = {
   id: string;
   name: string;
@@ -6,4 +8,8 @@ export type User = {
   data: {
     someAttribute: string;
   };
+};
+
+export type TokenPayload =  JwtPayload & {
+  username: string;
 };
