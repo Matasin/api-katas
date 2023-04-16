@@ -10,6 +10,12 @@ export type User = {
   };
 };
 
-export type TokenPayload =  JwtPayload & {
+export enum UserRoles {
+  Admin = 'admin',
+  User = 'user',
+}
+
+export type TokenPayload = {
   username: string;
+  role: UserRoles.Admin | UserRoles.User;
 };
