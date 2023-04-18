@@ -22,7 +22,8 @@
     "jsonwebtoken": "^9.0.0",
     "nodemon": "^2.0.22",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^4.6.2"
+    "swagger-ui-express": "^4.6.2",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

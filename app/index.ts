@@ -20,7 +20,7 @@ import type {
   TokenPayload,
   UserRoles,
 } from './types';
-import { canPerformAction, decodeJwt } from './helpers';
+import { canPerformAction } from './helpers';
 
 declare module 'express-session' {
   interface SessionData {
