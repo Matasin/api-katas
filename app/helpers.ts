@@ -10,10 +10,15 @@ export const decodeJwt = async (token: string, res: Response) => {
     const decoded = jwt.verify(token, publicSecret, {
       algorithms: ['RS256']
     });
-    return decoded as TokenPayload;
+
+    return {
+      decodedToken: decoded as TokenPayload
+    };
   } catch (err) {
-    res.sendStatus(401);
-    return null;
+
+    return {
+      errorCode: 401
+    };
   }
 };
 
@@ -24,19 +29,31 @@ export const canPerformAction = async (
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1] ?? '';
 
-  const decoded = await decodeJwt(token, res);
+  const {
+    decodedToken,
+    errorCode,
+  } = await decodeJwt(token, res);
 
-  if (!decoded || !decoded.role) {
-    res.sendStatus(401);
-    return;
+  if (errorCode) {
+    return {
+      errorCode,
+    };
   }
 
-  const { role } = decoded;
+  if (!decodedToken || !decodedToken.role) {
+    return {
+      errorCode: 401,
+    };
+  }
+  const { role } = decodedToken;
 
-  if (role === UserRoles.User && req.method !== 'GET') {
-    res.sendStatus(403);
-    return;
+  if (role === UserRoles.User) {
+    return {
+      errorCode: req.method !== 'GET' && 403,
+    };
   }
 
-  return role === UserRoles.Admin;
+  return {
+    errorCode: undefined,
+  };
 };

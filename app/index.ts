@@ -67,6 +67,11 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
+  next();
+});
+
 // - AUTH -
 app.get('/auth', (req: Request, res: Response) => {
   const params = qs.stringify({
@@ -139,23 +144,22 @@ app.get('/', async (req: Request, res: Response) => {
   if (!username || !role) {
     res.redirect('/auth');
   } else {
-    try {
-      res.send(`
+    res.set('Content-Type', 'text/html');
+
+    res.send(`
         Hello: ${username} (${role} access)<br/><hr/>
         Access token: ${accessToken} <br/><hr/>
         <a href="/logout">Logout</a>
       `);
-
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Error decoding JWT token');
-    }
   }
 });
 
 // - REST - 
 app.get('/users', async (req: Request, res: Response) => {
-  if (!await canPerformAction(req, res)) {
+  const { errorCode } = await canPerformAction(req, res);
+
+  if (errorCode) {
+    res.sendStatus(errorCode);
     return;
   }
 
@@ -163,7 +167,10 @@ app.get('/users', async (req: Request, res: Response) => {
 });
 
 app.get('/users/:id', async (req: Request, res: Response) => {
-  if (!await canPerformAction(req, res)) {
+  const { errorCode } = await canPerformAction(req, res);
+
+  if (errorCode) {
+    res.sendStatus(errorCode);
     return;
   }
 
@@ -178,7 +185,10 @@ app.get('/users/:id', async (req: Request, res: Response) => {
 });
 
 app.post('/users', async (req: Request, res: Response) => {
-  if (!await canPerformAction(req, res)) {
+  const { errorCode } = await canPerformAction(req, res);
+
+  if (errorCode) {
+    res.sendStatus(errorCode);
     return;
   }
 
@@ -202,7 +212,10 @@ app.post('/users', async (req: Request, res: Response) => {
 });
 
 app.put('/users/:id', async (req: Request, res: Response) => {
-  if (!await canPerformAction(req, res)) {
+  const { errorCode } = await canPerformAction(req, res);
+
+  if (errorCode) {
+    res.sendStatus(errorCode);
     return;
   }
 
@@ -235,7 +248,10 @@ app.put('/users/:id', async (req: Request, res: Response) => {
 });
 
 app.delete('/users/:id', async (req: Request, res: Response) => {
-  if (!await canPerformAction(req, res)) {
+  const { errorCode } = await canPerformAction(req, res);
+
+  if (errorCode) {
+    res.sendStatus(errorCode);
     return;
   }
 
